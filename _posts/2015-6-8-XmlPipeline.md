@@ -4,14 +4,14 @@ title: Speeding up XML processing using Chronicle Queue
 ---
 
 ## Background
-Inspired by performance problems with a trade XML processing solution...
+Inspired by frustration with performance problems with a trade XML processing solution...
 
 ## How fast?
 Below I describe an XML processing pipeline that can:
 
 * Ingest __and persist to disk__ XML at the rate of 150MB/sec, while simultaneously
 * Normalising each incoming XML (extract values from the XML, 50 tags configured as xpaths) and __persist results to disk__, while simultaneously
-* Building an index over all normalised values and absorbing thousands of queries executed against indexed data
+* Building an index over all normalised values to in-memory store and absorbing thousands of queries executed against indexed data
 
 The test scenario described below (see [throughput test](#throughput-test)) simulates the ingestion of 1M XML messages of average size 29K, normalisation of them,
 indexing of them and executing queries against the index continuously. The test runs in 10 minutes, converting 29G of XML
@@ -53,18 +53,18 @@ straight out to disk. Very low latency and very high throughput.
 This job of this component is to "land" incoming XML to disk and make it available for 
 downstream processing pipelines.
 #### Normaliser
-"Tails" persisted XML file, loads XML, extracts configured subset of individual tag values from the XML, and persists to disk in normalised file. Three versions have been implemented:
+"Tails" persisted XML queue, loads XML, extracts configured subset of individual tag values from the XML, and persists to disk in normalised queue. Three versions have been implemented:
 
 * JAXB implementation converts the XML to a Java object in memory - this takes the most 
 up-front time but is suitable for very complex and very numerous extractions of tags from XML
 * XOM implementation uses [XOM](www.xom.nu) to execute configured xpaths against XML
-* Custom implementation that makes use of a low latency ahnd-written XML parser and cut-down 
+* Custom implementation that makes use of a low latency hand-written XML parser and cut-down 
 support for an xpath subset. Low garbage and considerably lower latency and higher throughout 
 than JAXB and XOM impls. This is used for benchmark figures quoted on this page. Further 
 performance optimisation on this component still possible.
 
 #### Indexer
-Tails normalised file and builds an in-memory index of every normalised value.
+Tails normalised queue and builds an in-memory index of every normalised value.
 #### Queryer
 Allows basic queries to be executed suchs as:
 
@@ -75,7 +75,7 @@ Allows basic queries to be executed suchs as:
 Continuous queries e.g. count of received messages in last 10 seconds, alert where a trade's 
 attributes have changed
 #### DBWriter
-Not implemented yet. Will build on JAXB indexer and write XML to relational tables.
+Not implemented yet. Will write to relational tables.
 #### Downstream analytics
 Not implemented yet.
 
@@ -93,8 +93,8 @@ load on system and ensure that all components can keep up.
 Test harness uses approx 110 example FpMLs from FpML website, some of which have been increased in size, and values substituted values e.g. tradeId, tradeDate etc. Average size of each XML file is approx 29K. 
 
 * Test scenario is to send 1M FpML files, with a total size of approx 29GB. These XMLs are generated using the test harness and passed to Receiver. All components are run simultaneously
-* Normaliser tails received XML file and normalises using custom implementation before writing to normalised file
-* Indexer tails normalised file and builds in-memory index
+* Normaliser tails received XML queue and normalises using custom implementation before writing to normalised queue
+* Indexer tails normalised queue and builds in-memory index
 * During the test run the Queryer is run to repeatedly execute the same queries: 
     * get all of a particular type 
     * get all on tradeDate of X 
@@ -109,7 +109,7 @@ Not entirely realistic as super-fast no garbage XML generation component actuall
 * EC2 c3.xlarge
     * Total test execution time 550 seconds
         * Receiver completed in 200 seconds, persisting 1M messages at 5K msgs/sec, each message average #chars 28,867 (chars range 2,082-1,614,103) (148 million chars/sec) 
-        * Normaliser completed in 550 seconds, reading, normalising and persisting 1M messages at 1,800 msgs/sec
+        * Normaliser completed in 550 seconds, reading, normalising and persisting 1M messages at 1,800 msgs/sec (this is the bottleneck)
         * Indexer completes processing in 550 seconds, reading and indexing 1M messages
         * Queryer executes during entire test run, executing approx 2,000 queries, returning a total of 1.25G of data, (1.4M rows - average 700 rows per query), in an average of 220 ms per query
 * MacBook Pro 4 cores and SSD:
