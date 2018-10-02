@@ -69,7 +69,7 @@ is registered to drain any writes made to the ring buffer to a the underlying qu
 
 ### Enterprise Chronicle Queue backed with ring buffer, 250K msgs/sec of 32 bytes
 With the ring buffer, pauses at high percentiles are drastically reduced by the above 3 lines of code, 
-the worst 99.99th percentile is under 33μs. Vertical axis is logarithmic.
+the worst 99.99th percentile is under 5μs. Vertical axis is logarithmic.
 
-![Enterprise Chronicle Queue backed with ring buffer, 250K msgs/sec of 32 bytes](/images/4.png)
+![Enterprise Chronicle Queue backed with ring buffer, 250K msgs/sec of 32 bytes](/images/41.png)
 
