@@ -35,7 +35,7 @@ start to increase to the low milliseconds - 99.99 is ~2.5ms. Vertical axis is lo
 ![Chronicle Queue, 250K msgs/sec of 32 bytes](/images/2.png)
 
 ### Chronicle Queue with pretoucher, 250K msgs/sec of 32 bytes
-If Chronicle-Queuer's pretoucher is used, this improves the high percentiles 
+If Chronicle-Queue's pretoucher is used, this improves the high percentiles 
 (99.97 cut in half and 99.99 reduced by 1/3rd), but they are still sub-optimal. Vertical axis is logarithmic.
 
 > To minimise latency of writes, the [pretoucher](https://github.com/OpenHFT/Chronicle-Queue/blob/9a56a86bf7f489d838d030a6486570cfb1b5cb15/src/main/java/net/openhft/chronicle/queue/impl/single/Pretoucher.java) is designed to be run in a separate thread (or process) and aggressively 'pre-touch' the pages in a queue, so that they are resident in the page-cache (i.e. loaded from storage) before they are required by the application.
@@ -45,11 +45,11 @@ If Chronicle-Queuer's pretoucher is used, this improves the high percentiles
 ## Why do we see these delays and how to fix
 
 The short answer is that the OS is introducing the delays, because it is stalling the process while waiting for a page to 
-be read from or written to disk.
+be read from or written to disk. You can reduce these delays:
 * Making use of Chronicle Queue's pretoucher helps, and research continues into how to make the pretoucher work more effectively.
-* Map the queue in to /tmpfs if it is small enough and you have a suitable replication or backup strategy.
+* Mapping the queue to /tmpfs removes delays caused by disk I/O, but only if it is small enough and you have a suitable replication or backup strategy.
 * Tuning of the BIOS and OS is effective, although requires patience and expertise: power states, BIOS, kernel, RAID, 
-even changing to an alternative file system.
+even changing to an alternative file system all help.
 
 But, a straightforward way to mitigate this (if you have [Enterprise Chronicle Queue](https://chronicle.software/products/queue/)) 
 is to set a couple of parameters when creating your queue:
@@ -69,7 +69,7 @@ is registered to drain any writes made to the ring buffer to a the underlying qu
 
 ### Enterprise Chronicle Queue backed with ring buffer, 250K msgs/sec of 32 bytes
 With the ring buffer, pauses at high percentiles are drastically reduced by the above 3 lines of code, 
-the worst 99.99th percentile is under 33μs. Vertical axis is logarithmic.
+the worst 99.99th percentile is under 5μs. Vertical axis is logarithmic.
 
-![Enterprise Chronicle Queue backed with ring buffer, 250K msgs/sec of 32 bytes](/images/4.png)
+![Enterprise Chronicle Queue backed with ring buffer, 250K msgs/sec of 32 bytes](/images/41.png)
 
