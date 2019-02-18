@@ -45,11 +45,11 @@ If Chronicle-Queuer's pretoucher is used, this improves the high percentiles
 ## Why do we see these delays and how to fix
 
 The short answer is that the OS is introducing the delays, because it is stalling the process while waiting for a page to 
-be read from or written to disk.
+be read from or written to disk. You can reduce these delays:
 * Making use of Chronicle Queue's pretoucher helps, and research continues into how to make the pretoucher work more effectively.
-* Map the queue in to /tmpfs if it is small enough and you have a suitable replication or backup strategy.
+* Mapping the queue to /tmpfs removes delays caused by disk I/O, but only if it is small enough and you have a suitable replication or backup strategy.
 * Tuning of the BIOS and OS is effective, although requires patience and expertise: power states, BIOS, kernel, RAID, 
-even changing to an alternative file system.
+even changing to an alternative file system all help.
 
 But, a straightforward way to mitigate this (if you have [Enterprise Chronicle Queue](https://chronicle.software/products/queue/)) 
 is to set a couple of parameters when creating your queue:
