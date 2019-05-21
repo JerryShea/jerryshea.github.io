@@ -35,7 +35,7 @@ start to increase to the low milliseconds - 99.99 is ~2.5ms. Vertical axis is lo
 ![Chronicle Queue, 250K msgs/sec of 32 bytes](/images/2.png)
 
 ### Chronicle Queue with pretoucher, 250K msgs/sec of 32 bytes
-If Chronicle-Queuer's pretoucher is used, this improves the high percentiles 
+If Chronicle-Queue's pretoucher is used, this improves the high percentiles 
 (99.97 cut in half and 99.99 reduced by 1/3rd), but they are still sub-optimal. Vertical axis is logarithmic.
 
 > To minimise latency of writes, the [pretoucher](https://github.com/OpenHFT/Chronicle-Queue/blob/9a56a86bf7f489d838d030a6486570cfb1b5cb15/src/main/java/net/openhft/chronicle/queue/impl/single/Pretoucher.java) is designed to be run in a separate thread (or process) and aggressively 'pre-touch' the pages in a queue, so that they are resident in the page-cache (i.e. loaded from storage) before they are required by the application.
