@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Reducing tail latencies with a Ring Buffer
+title: Reducing tail latencies with a Chronicle Queue Enterprise
 ---
 
 ## Background
@@ -60,16 +60,16 @@ is to set a couple of parameters when creating your queue:
     builder.bufferBytesStoreCreator(RB_BYTES_STORE_CREATOR_MAPPED_FILE_TMPFS);
 ```
 
-which configures Chronicle Queue to create a 
-[ring buffer](https://github.com/OpenHFT/Chronicle-Queue/blob/master/docs/ring_buffer.adoc) 
-over the top of the queue to absorb any latencies from the OS. 
-In the above example, the ring buffer is mapped to a file (stored in this case in /tmpfs which is a high-speed file system) 
+which configures Chronicle Queue to run in aync mode to absorb any latencies from the OS. 
+In the above example, the
+[ring buffer](https://github.com/OpenHFT/Chronicle-Queue/blob/ea/docs/ring_buffer.adoc)
+is mapped to a file (stored in this case in /tmpfs which is a high-speed file system) 
 so that other processes can see it. All reads and writes from/to the queue go to the ring buffer, and a separate handler 
 is registered to drain any writes made to the ring buffer to a the underlying queue.
 
-### Enterprise Chronicle Queue backed with ring buffer, 250K msgs/sec of 32 bytes
-With the ring buffer, pauses at high percentiles are drastically reduced by the above 3 lines of code, 
+### Enterprise Chronicle Queue in async mode, 250K msgs/sec of 32 bytes
+With async mode, pauses at high percentiles are drastically reduced by the above 3 lines of code, 
 the worst 99.99th percentile is under 5μs. Vertical axis is logarithmic.
 
-![Enterprise Chronicle Queue backed with ring buffer, 250K msgs/sec of 32 bytes](/images/41.png)
+![Enterprise Chronicle Queue in async mode, 250K msgs/sec of 32 bytes](/images/41.png)
 

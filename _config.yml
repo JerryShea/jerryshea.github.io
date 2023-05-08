@@ -1,9 +1,7 @@
 # Site settings
 title: Jerry's blog
 email: jerry.shea@gmail.com
-description: > # this means to ignore newlines until "baseurl:"
-  Ramblings about low latency Java
-baseurl: "" # the subpath of your site, e.g. /blog
+description: Ramblings about low latency Java
 url: "https://jerryshea.github.io" # the base hostname & protocol for your site
 twitter_username: "melb_jezza"
 github_username:  "jerryshea"
